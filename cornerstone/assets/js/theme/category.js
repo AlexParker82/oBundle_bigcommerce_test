@@ -27,6 +27,20 @@ export default class Category extends CatalogPage {
         $('a.navList-action').on('click', () => this.setLiveRegionAttributes($('span.price-filter-message'), 'status', 'assertive'));
     }
 
+    showSecondImage(e) {
+        const productImg = $(e.currentTarget);
+        const imgSrc = productImg.attr("data-hoverimage");
+        productImg.attr("srcset", imgSrc);
+    }
+
+    showFirstImage(e) {
+        const productImg = $(e.currentTarget);
+        const imgSrc = productImg.attr("data-src");
+        productImg.attr("srcset", imgSrc);
+
+    }
+
+
     onReady() {
         this.arrangeFocusOnSortBy();
 
@@ -46,6 +60,8 @@ export default class Category extends CatalogPage {
         $('a.reset-btn').on('click', () => this.setLiveRegionsAttributes($('span.reset-message'), 'status', 'polite'));
 
         this.ariaNotifyNoProducts();
+
+        $(".product-img").on('mouseenter', this.showSecondImage.bind(this)).on('mouseleave', this.showFirstImage.bind(this))
     }
 
     ariaNotifyNoProducts() {
