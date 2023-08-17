@@ -1,6 +1,6 @@
 # oBundle_bigcommerce_test
 
-Setup
+> Setup
 ----------
 Sign up for a BigCommerce trial store, this will be valid for 15 days and will be needed to complete the test
 Install Stencil CLI for local development, you will be using the default Cornerstone Theme that comes standard with new BigCommerce stores
