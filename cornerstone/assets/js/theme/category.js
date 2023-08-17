@@ -4,6 +4,8 @@ import compareProducts from './global/compare-products';
 import FacetedSearch from './common/faceted-search';
 import { createTranslationDictionary } from '../theme/common/utils/translations-utils';
 
+const apiRoute = "/api/storefront/carts/";
+
 export default class Category extends CatalogPage {
     constructor(context) {
         super(context);
@@ -27,18 +29,94 @@ export default class Category extends CatalogPage {
         $('a.navList-action').on('click', () => this.setLiveRegionAttributes($('span.price-filter-message'), 'status', 'assertive'));
     }
 
+    // function to get the CDN for the second item image and set it with srcset
     showSecondImage(e) {
         const productImg = $(e.currentTarget);
         const imgSrc = productImg.attr("data-hoverimage");
         productImg.attr("srcset", imgSrc);
     }
-
+    // function to get the CDN for the first item image and set it with srcset
     showFirstImage(e) {
         const productImg = $(e.currentTarget);
         const imgSrc = productImg.attr("data-src");
         productImg.attr("srcset", imgSrc);
 
     }
+    // api call to check if cart exists and return cart id
+    checkCart(url) {
+
+        return fetch(url, {
+            method: "GET",
+            credentials: "same-origin"
+        })
+            .then(res => res.json())
+    }
+    // api call to create a cart and adds an item. also shows the "item added" notification  and hides the "item deleted" notification
+    createCart(url, cartItems) {
+
+        return fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "Application/json"
+            },
+            body: JSON.stringify(cartItems)
+        })
+            .then(res => res.json()).then((data) => {
+                if (data) {
+                    $(".add-notification").show();
+                    $(".delete-notification").hide();
+                    $("#rmvBtn").show();
+                }
+            })
+            .catch(err => console.error(err))
+
+    }
+
+    addCartItem(url, cartId, cartItems) {
+
+        const fullUrl = `${url}${cartId}/items`;
+        return fetch(fullUrl, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(cartItems),
+        })
+            .then(response => response.json())
+            .then(result => console.log(result))
+            .catch(error => console.error(error));
+    };
+    // delete cart api call, also shows the item deleted notification and hides the item added notification
+    deleteCart(url, cart) {
+
+        let route = `${url}${cart}`;
+        console.log(route);
+        return fetch(route, {
+            method: "DELETE",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+            .then(res => console.log(res))
+            .then(() => {
+                $(".delete-notification").show();
+                $(".add-notification").hide();
+            })
+            .catch(err => console.error(err));
+    };
+    // cart delete handler function that checks to see if a cart exists and deletes it if it does.  Hides the "remove all" button after deletion
+    onDeleteCart() {
+        this.checkCart(apiRoute)
+            .then(data => this.deleteCart(apiRoute, data[0].id))
+            .then(() => {
+                $("#rmvBtn").hide();
+            })
+            .catch(err => console.error(err))
+    }
+
 
 
     onReady() {
@@ -61,7 +139,22 @@ export default class Category extends CatalogPage {
 
         this.ariaNotifyNoProducts();
 
-        $(".product-img").on('mouseenter', this.showSecondImage.bind(this)).on('mouseleave', this.showFirstImage.bind(this))
+        // button handler for adding items to cart
+        $("#addBtn").on('click', () => this.createCart(apiRoute, { "lineItems": [{ "quantity": 1, "productId": 112 }] }));
+
+        // button handler for deleting items from cart
+        $('#rmvBtn').on('click', () => this.onDeleteCart());
+
+        // checks if cart is empty or has items and shows the buttons accordingly
+        this.checkCart(apiRoute).then((data) => {
+            if (data.length > 0) {
+                $("#rmvBtn").show();
+            } else {
+                $("#rmvBtn").hide();
+            }
+        })
+
+        $(".product-img").on('mouseenter', this.showSecondImage.bind(this)).on('mouseleave', this.showFirstImage.bind(this));
     }
 
     ariaNotifyNoProducts() {
