@@ -29,3 +29,15 @@
 .delete-notification {
 	display: none;
 }
+
+.customer-wrapper {
+	display: flex;
+	justify-content: start;
+}
+
+.customer-name,
+.customer-email,
+.customer-phone {
+	padding: 0px;
+	margin: 0px;
+}
