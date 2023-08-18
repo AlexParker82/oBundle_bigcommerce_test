@@ -4,6 +4,7 @@ import compareProducts from './global/compare-products';
 import FacetedSearch from './common/faceted-search';
 import { createTranslationDictionary } from '../theme/common/utils/translations-utils';
 
+// storefront api url
 const apiRoute = "/api/storefront/carts/";
 
 export default class Category extends CatalogPage {
